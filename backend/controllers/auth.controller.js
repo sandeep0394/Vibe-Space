@@ -2,58 +2,61 @@ import { generateTokenAndSetCookie } from '../lib/utils/generateToken.js';
 import User from '../models/user.model.js'
 import bcrypt from 'bcryptjs';
 
-export const signup  = async  (req, res)=>{
+export const signup = async (req, res) => {
   try {
-    const{ fullName, username, email, password } = req.body;
+    const { fullname, username, email, password } = req.body;
+
+    // Validate fullname
+    if (!fullname) {
+      return res.status(400).json({ error: "Full name is required" });
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)){
-      return res.status(400).json({ error: "Invalid email format"});  
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
     }
 
-    const existingUser = await User.findOne({ username});
-    if(existingUser){
-      return res.status(400).json({error: "username is already taken"});
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username is already taken" });
     }
 
-    const existingEmail = await User.findOne({ email});
-    if(existingEmail){
-      return res.status(400).json({error: "email is already taken"});
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: "Email is already taken" });
     }
 
-    // hash password
-
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      fullName,
+      fullname,
       username,
       email,
-      password:hashedPassword,
-    })
-    if(newUser){ 
-      generateTokenAndSetCookie(newUser._id,res)
-      await newUser.save();
+      password: hashedPassword,
+    });
 
-      res.status(201).json({
-       _id: newUser._id,
-       fullName:newUser.fullname,
-       username:newUser.username,
-       email:newUser.email,
-       followers:newUser.followers,
-       following:newUser.following,
-       profileImg:newUser.profileImg,
-       coverImg:newUser.coverImg,
-      })
-    }else{
-     res.status(400).json({ error: "Invalid user data"});
+    await newUser.save();
 
-    }
- }catch (error){ 
-  console.log("Error in signup controller", error.message);
-  res.status(500).json({ error: "Internal Server Error"}); 
- }
+    generateTokenAndSetCookie(newUser._id, res);
+
+    res.status(201).json({
+      _id: newUser._id,
+      fullName: newUser.fullname,
+      username: newUser.username,
+      email: newUser.email,
+      followers: newUser.followers,
+      following: newUser.following,
+      profileImg: newUser.profileImg,
+      coverImg: newUser.coverImg,
+    });
+  } catch (error) {
+    console.log("Error in signup controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+
 
 export const login  = async  (req, res)=>{
   try {
@@ -68,7 +71,7 @@ export const login  = async  (req, res)=>{
     
     res.status(200).json({
       _id: user._id,
-      fullName: user.fullName,
+      fullname: user.fullName,
       username: user.username,
       email: user.email,
       followers: user.followers,
