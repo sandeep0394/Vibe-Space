@@ -50,19 +50,19 @@ const userSchema = new mongoose.Schema(
     bio: {
       type: String,
       default: "",
-      maxlength: 150, // Optional: Limit bio length
     },
     link: {
       type: String,
       default: "",
-      validate: {
-        validator: function (v) {
-          return !v || /^https?:\/\/[^\s$.?#].[^\s]*$/gm.test(v); // Validates links or allows empty strings
-        },
-        message: "Invalid link format",
-      },
     },
-  },
+    likedPosts:[
+      {
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"post",
+      default:[],
+    }
+  ],
+    },
   { timestamps: true } // Automatically adds `createdAt` and `updatedAt`
 );
 
