@@ -131,8 +131,12 @@ export const likeUnlikePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
 	try {
+		const { page = 1, limit = 10 } = req.query;
+
 		const posts = await Post.find()
 			.sort({ createdAt: -1 })
+			.skip((page - 1) * limit)
+			.limit(Number(limit))
 			.populate({
 				path: "user",
 				select: "-password",
@@ -142,11 +146,10 @@ export const getAllPosts = async (req, res) => {
 				select: "-password",
 			});
 
-		if (posts.length === 0) {
-			return res.status(200).json([]);
-		}
+		const totalPosts = await Post.countDocuments();
+		const totalPages = Math.ceil(totalPosts / limit);
 
-		res.status(200).json(posts);
+		res.status(200).json({ posts, totalPages, currentPage: Number(page) });
 	} catch (error) {
 		console.log("Error in getAllPosts controller: ", error);
 		res.status(500).json({ error: "Internal server error" });
