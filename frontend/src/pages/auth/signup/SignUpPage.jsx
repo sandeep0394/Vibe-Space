@@ -7,9 +7,9 @@ import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useMutation } from "@tanstack/react-query";
+
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({
 		email: "",
@@ -17,32 +17,41 @@ const SignUpPage = () => {
 		fullname: "",
 		password: "",
 	});
-    const {mutate, isError, isPending, error}= useMutation({
-       mutationFn: async ({email, username, fullname, password})=>{
-		try {
-			const res = await fetch("/api/auth/signup", {
-			   method:"POST",
-			   headers:{
-                 "content-Type": "application/json"
-			   },
-			   body: JSON.stringify({email,username,fullname,password})
-			});
 
-			if(!res.ok) throw new Error(data.error || "failed to create account");
-			console.log(data);
-			return data;
-		} catch (error) {
-		  console.error(error); 
-		  toast.error(error.message);
-		}
-	   },
-	   onSuccess:() => {
-		toast.success("Account created successfully");
-	   }
+	const queryClient = useQueryClient();
+
+	const { mutate, isError, isPending, error } = useMutation({
+		mutationFn: async ({ email, username, fullname, password }) => {
+			try {
+				const res = await fetch("/api/auth/signup", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ email, username, fullname, password }),
+				});
+
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "Failed to create account");
+				console.log(data);
+				return data;
+			} catch (error) {
+				console.error(error);
+				throw error;
+			}
+		},
+		onSuccess: () => {
+			toast.success("Account created successfully");
+
+			{
+				/* Added this line below, after recording the video. I forgot to add this while recording, sorry, thx. */
+			}
+			queryClient.invalidateQueries({ queryKey: ["authUser"] });
+		},
 	});
-	
+
 	const handleSubmit = (e) => {
-		e.preventDefault();// page wont reload
+		e.preventDefault(); // page won't reload
 		mutate(formData);
 	};
 
@@ -53,7 +62,7 @@ const SignUpPage = () => {
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen px-10'>
 			<div className='flex-1 hidden lg:flex items-center  justify-center'>
-				<XSvg className=' lg:w-2/3 fill-white' />
+				<XSvg className='lg:w-2/3 fill-white' />
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col' onSubmit={handleSubmit}>
@@ -106,7 +115,7 @@ const SignUpPage = () => {
 						/>
 					</label>
 					<button className='btn rounded-full btn-primary text-white'>
-						{isPending ? "Loading..." : "sign up"}
+						{isPending ? "Loading..." : "Sign up"}
 					</button>
 					{isError && <p className='text-red-500'>{error.message}</p>}
 				</form>
