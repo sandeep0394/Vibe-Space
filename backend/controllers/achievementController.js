@@ -12,6 +12,13 @@ export const checkAchievements = async (userId) => {
     }
 };
 
+// Helper function to determine user tier based on followers
+const getUserTier = (followers) => {
+    if (followers >= 501) return "Advanced";
+    if (followers >= 101) return "Intermediate";
+    return "Beginner";
+};
+
 // Function to get user achievements
 export const getUserAchievements = async (req, res) => {
     try {
