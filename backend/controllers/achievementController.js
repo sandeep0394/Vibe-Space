@@ -1,8 +1,18 @@
-
+import Achievement from '../models/Achievements.js'
 import UserAchievement from '../models/UserAchievement.js'
 
 import Post from '../models/Post.js'
 import User from '../models/User.js'
+const achievement = await Achievement.findOne({ tier: userTier });
+if (achievement) {
+    const newAchievement = new UserAchievement({
+        userId,
+        tier: userTier,
+        achievementName: achievement.name,  // Assuming 'name' exists in Achievement model
+    });
+
+    await newAchievement.save();
+}
 
 
 
