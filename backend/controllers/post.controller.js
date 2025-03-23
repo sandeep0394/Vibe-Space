@@ -2,7 +2,7 @@ import Notification from "../models/notification.model.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import { v2 as cloudinary } from "cloudinary";
-import { checkAchievements } from "./achievement.controller.js";
+
 export const createPost = async (req, res) => {
 	try {
 		const { text } = req.body;
