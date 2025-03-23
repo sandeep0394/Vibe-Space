@@ -55,7 +55,7 @@ mongoose
     // Start server only after DB connection
     const server = http.createServer(app);
     const io = new Server(server, {
-      cors: { origin: process.env.FRONTEND_URL || 'https://your-backend.onrender.com', credentials: true },
+      cors: { origin: process.env.FRONTEND_URL || 'https://vibe-space.onrender.com', credentials: true },
     });
 // Battle Schema
 const battleSchema = new mongoose.Schema({
