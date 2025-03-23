@@ -1,7 +1,8 @@
 import XSvg from "../svgs/X";
+
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
-import { FaGamepad, FaUser } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -58,15 +59,6 @@ const Sidebar = () => {
 							<span className='text-lg hidden md:block'>Notifications</span>
 						</Link>
 					</li>
-					<li className='flex justify-center md:justify-start'>
-						<Link
-							to='/tbattle'
-							className='flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 py-2 pl-2 pr-4 max-w-fit cursor-pointer'
-						>
-							<IoNotifications className='w-6 h-6' />
-							<span className='text-lg hidden md:block'>Tbattle</span>
-						</Link>
-					</li>
 
 					<li className='flex justify-center md:justify-start'>
 						<Link
@@ -78,7 +70,6 @@ const Sidebar = () => {
 						</Link>
 					</li>
 				</ul>
-				
 				{authUser && (
 					<Link
 						to={`/profile/${authUser.username}`}
@@ -108,5 +99,4 @@ const Sidebar = () => {
 		</div>
 	);
 };
-
 export default Sidebar;

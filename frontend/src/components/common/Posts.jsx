@@ -32,17 +32,21 @@ const Posts = ({ feedType, username, userId }) => {
 			try {
 				const res = await fetch(POST_ENDPOINT);
 				const data = await res.json();
-
+	
+				console.log("API Response:", data); // 🔥 Debugging log
+	
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
-
-				return data;
+	
+				return Array.isArray(data) ? data : []; // Ensure it's always an array
 			} catch (error) {
-				throw new Error(error);
+				console.error("Fetch error:", error); // Log fetch errors
+				return []; // Return an empty array on error
 			}
 		},
 	});
+	
 
 	useEffect(() => {
 		refetch();

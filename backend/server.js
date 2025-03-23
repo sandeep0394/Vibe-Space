@@ -27,6 +27,9 @@ cloudinary.config({
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const router = express.Router();
+
+
 
 // ✅ Middleware
 app.use(cors({ origin: process.env.FRONTEND_URL || '*', credentials: true }));
@@ -38,8 +41,9 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use('/api/achievements', achievementRoutes);
 
+app.use('/api/notifications', notificationRoutes);
 // ✅ MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -58,23 +62,15 @@ const battleSchema = new mongoose.Schema({
   description: String,
   level: String,
 });
+app.post("/like", async (req, res) => {
+  const { postId, userId } = req.body;
 
-const Battle = mongoose.model("Battle", battleSchema);
-app.post("/api/battles", async (req, res) => {
-  console.log("Received battle creation request:", req.body); // Debugging
-  const { title, description, level } = req.body;
-  if (!title || !description || !level) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
-  // Store battle in MongoDB
-  try {
-    const newBattle = await BattleModel.create({ title, description, level });
-    res.status(201).json(newBattle);
-  } catch (error) {
-    console.error("Error saving battle:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+  await Post.findByIdAndUpdate(postId, { $inc: { likes: 1 } });
+  await checkAndUnlockAchievements(userId);
+
+  res.json({ message: "Post liked!" });
 });
+
 
     // ✅ WebSocket Connection
     io.on('connection', (socket) => {
@@ -109,3 +105,4 @@ app.post("/api/battles", async (req, res) => {
   })
   
   .catch((err) => console.error('❌ MongoDB connection error:', err));
+  export default router;
