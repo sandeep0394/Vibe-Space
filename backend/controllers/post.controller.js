@@ -2,7 +2,8 @@ import Notification from "../models/notification.model.js";
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import { v2 as cloudinary } from "cloudinary";
-import { checkAchievements } from "./achievement.controller.js";
+import { checkAchievements } from "../controllers/achievementController.js";
+
 export const createPost = async (req, res) => {
 	try {
 		const { text } = req.body;
@@ -231,3 +232,4 @@ export const getUserPosts = async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
+export default checkAchievements

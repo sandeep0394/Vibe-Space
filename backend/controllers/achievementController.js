@@ -1,25 +1,36 @@
-import Achievement from '../models/Achievements.js'
-import UserAchievement from '../models/UserAchievement.js'
+import Achievement from '../models/Achievements.js';
+import UserAchievement from '../models/UserAchievement.js';
+import Post from '../models/post.model.js';
+import User from '../models/user.model.js';
 
-import Post from '../models/Post.js'
-import User from '../models/User.js'
-
-
-
-const getUserTier = (followers) => {
-    if (followers >= 501) return "Advanced";
-    if (followers >= 101) return "Intermediate";
-    return "Beginner";
+// Function to check achievements
+export const checkAchievements = async (userId) => {
+    try {
+        console.log("Checking achievements for user:", userId);
+    } catch (error) {
+        console.error("Error in checkAchievements:", error);
+    }
 };
 
-const checkAndUnlockAchievements = async (userId) => {
+// Function to get user achievements
+export const getUserAchievements = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const achievements = await UserAchievement.find({ userId });
+        res.json(achievements);
+    } catch (error) {
+        console.error("Error fetching user achievements:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+// Function to check and unlock achievements
+export const checkAndUnlockAchievements = async (userId) => {
     try {
         const user = await User.findById(userId);
         if (!user) return;
 
         const userTier = getUserTier(user.followers.length);
-
-        // Define different achievement thresholds based on tier
         const tierRequirements = {
             Beginner: { likes: 10, comments: 5 },
             Intermediate: { likes: 50, comments: 25 },
@@ -28,27 +39,28 @@ const checkAndUnlockAchievements = async (userId) => {
 
         const { likes, comments } = tierRequirements[userTier];
 
-        // Count user's total likes & comments
-        const totalLikes = await Post.aggregate([
-            { $match: { userId } },
+        const totalStats = await Post.aggregate([
+            { $match: { userId: user._id } },
             { $group: { _id: null, likes: { $sum: "$likes" }, comments: { $sum: "$comments" } } }
         ]);
 
-        const userStats = totalLikes[0] || { likes: 0, comments: 0 };
+        const userStats = totalStats[0] || { likes: 0, comments: 0 };
 
-        // Check if the user meets achievement requirements
         if (userStats.likes >= likes && userStats.comments >= comments) {
             const existingAchievement = await UserAchievement.findOne({ userId, tier: userTier });
 
             if (!existingAchievement) {
+                const achievement = await Achievement.findOne({ tier: userTier });
+                const achievementName = achievement ? achievement.name : `${userTier} Achiever 🏆`;
+
                 const newAchievement = new UserAchievement({
                     userId,
                     tier: userTier,
-                    achievementName: `${userTier} Achiever 🏆`,
+                    achievementName: achievementName,
                 });
 
                 await newAchievement.save();
-                console.log(`🎉 ${user.username} unlocked the ${userTier} Achiever badge!`);
+                console.log(`🎉 ${user.username} unlocked the ${achievementName} badge!`);
             }
         }
     } catch (error) {
@@ -56,4 +68,3 @@ const checkAndUnlockAchievements = async (userId) => {
     }
 };
 
-module.exports = { checkAndUnlockAchievements };

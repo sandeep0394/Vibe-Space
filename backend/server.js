@@ -15,6 +15,7 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import postRoutes from './routes/post.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import achievementRoutes from '../backend/routes/achievementRoutes.js';
 
 dotenv.config();
 

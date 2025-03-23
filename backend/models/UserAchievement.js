@@ -6,4 +6,5 @@ const userAchievementSchema = new mongoose.Schema({
   unlockedAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('UserAchievement', userAchievementSchema);
+// Use `export default` instead of `module.exports`
+export default mongoose.model('UserAchievement', userAchievementSchema);
